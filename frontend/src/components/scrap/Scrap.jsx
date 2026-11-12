@@ -8,7 +8,7 @@ export const Mark = ({ className = "", spin = false }) => (
 export const Logo = ({ small }) => (
   <div className="flex items-center gap-1.5" data-testid="app-logo">
     <Mark spin className={small ? "text-xl" : "text-2xl"} />
-    <span className={`font-hand ${small ? "text-xl" : "text-2xl"} leading-none`}>Scribbld People</span>
+    <span className={`font-hand ${small ? "text-xl" : "text-2xl"} leading-none`}>peer-ly beloved</span>
   </div>
 );
 

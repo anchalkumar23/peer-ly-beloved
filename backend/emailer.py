@@ -126,7 +126,7 @@ async def send_hello_email(*, to: str, recipient_name: str, sender_name: str, ap
         f'<p style="font-size:16px;line-height:1.5;margin:0 0 20px"><strong>{escape(sender_name)}</strong> matched with you '
         'and sent a hello. Open the app to read it and accept or decline.</p>'
         f'<a href="{link}" style="display:inline-block;background:#FF5A5F;color:#ffffff;text-decoration:none;'
-        'font-weight:bold;padding:12px 20px;border-radius:999px;border:2px solid #1E1E24">Open Scribbld People</a>'
+        'font-weight:bold;padding:12px 20px;border-radius:999px;border:2px solid #1E1E24">Open peer-ly beloved</a>'
         f'<p style="font-size:12px;color:#5C5C66;margin:24px 0 0">Sent by {escape(EMAIL_FROM_NAME)}, the just-for-fun '
         'coworker quiz. We never ask for your password by email.</p>'
         '</td></tr></table></td></tr></table>'

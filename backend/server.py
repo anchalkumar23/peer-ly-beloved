@@ -139,7 +139,7 @@ async def upsert_user_and_session(response: Response, *, tid, oid, email, name):
 
 def check_domain(email):
     if not email or not email.lower().endswith("@" + DOMAIN):
-        raise HTTPException(403, f"Only @{DOMAIN} accounts can join Scribbld People")
+        raise HTTPException(403, f"Only @{DOMAIN} accounts can join peer-ly beloved")
 
 
 @api.get("/auth/config")
@@ -484,7 +484,7 @@ async def get_matches(refresh: bool = False, user=Depends(current_user)):
         u = users.get(c["user_id"])
         if not u:
             continue
-        commons = commons[:3] or ["are both new to Scribbld People, so plenty to discover"]
+        commons = commons[:3] or ["are both new to peer-ly beloved, so plenty to discover"]
         out.append({**card_view(u, c), "score": round(score * 100), "components": {k: round(v * 100) for k, v in comps.items()},
                     "commonalities": commons, "connection": conn_by.get(u["id"])})
         await db.match_events.update_one({"user_id": user["id"], "other_id": u["id"]},

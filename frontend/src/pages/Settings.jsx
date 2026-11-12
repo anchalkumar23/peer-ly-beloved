@@ -76,7 +76,7 @@ export default function Settings() {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-      <p className="mt-8 text-xs text-center text-[#5C5C66]">Scribbld People is just for fun. Quiz data is never used for performance reviews.</p>
+      <p className="mt-8 text-xs text-center text-[#5C5C66]">peer-ly beloved is just for fun. Quiz data is never used for performance reviews.</p>
     </AppShell>
   );
 }

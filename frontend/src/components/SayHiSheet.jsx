@@ -14,7 +14,7 @@ const buildOpeners = (person, note) => {
   const [a, b] = person.commonalities || [];
   const list = [
     `Hey ${first}! Looks like we both ${a}. Up for a coffee or a quick chat about it?`,
-    `Hi ${first} 👋 Scribbld People says we both ${b || a}. Chai break this week?`,
+    `Hi ${first} 👋 peer-ly beloved says we both ${b || a}. Chai break this week?`,
     `Hey ${first}! Apparently we'd click. Lunch sometime so we can test the theory?`,
   ];
   if (note) list.unshift(note);
