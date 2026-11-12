@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: 40 41% 96%;
+        --foreground: 240 9% 13%;
+        --card: 0 0% 100%;
+        --card-foreground: 240 9% 13%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 240 9% 13%;
+        --primary: 358 100% 68%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 45 93% 85%;
+        --secondary-foreground: 240 9% 13%;
+        --muted: 40 25% 90%;
+        --muted-foreground: 240 5% 38%;
+        --accent: 160 84% 39%;
+        --accent-foreground: 0 0% 100%;
+        --destructive: 0 72% 51%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 240 9% 13%;
+        --input: 240 9% 13%;
+        --ring: 358 100% 68%;
+        --radius: 1rem;
+        --ink: #1E1E24;
+        --paper: #F9F6F0;
+        --coral: #FF5A5F;
+    }
+}
+
+@layer base {
+    * { @apply border-border; }
+    html { -webkit-tap-highlight-color: transparent; }
+    body {
+        margin: 0;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: var(--ink);
+        background-color: #EFE9DD;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+    }
+    ::selection { background: #FDE68A; color: var(--ink); }
+    :focus-visible { outline: 3px solid #2563EB; outline-offset: 2px; border-radius: 8px; }
+}
+
+@layer components {
+    .paper-bg {
+        background-color: var(--paper);
+        background-image:
+            radial-gradient(rgba(30, 30, 36, 0.06) 1px, transparent 1px),
+            repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.012) 0px, rgba(0, 0, 0, 0.012) 2px, transparent 2px, transparent 4px);
+        background-size: 18px 18px, auto;
+    }
+    .grid-paper {
+        background-color: #fff;
+        background-image: linear-gradient(rgba(37, 99, 235, 0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(37, 99, 235, 0.08) 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+    .lined-paper {
+        background-color: #FFFDF5;
+        background-image: repeating-linear-gradient(transparent, transparent 27px, rgba(37, 99, 235, 0.15) 27px, rgba(37, 99, 235, 0.15) 28px);
+        line-height: 28px;
+    }
+    .brutal { border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+    .brutal-sm { border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+    .brutal-lg { border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); }
+    .tape {
+        position: absolute; width: 84px; height: 24px; z-index: 20; pointer-events: none;
+        background: rgba(254, 240, 138, 0.8);
+        border-left: 1px dashed rgba(180, 140, 20, 0.25); border-right: 1px dashed rgba(180, 140, 20, 0.25);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    }
+    .tape-mint { background: rgba(167, 243, 208, 0.85); }
+    .tape-pink { background: rgba(251, 207, 232, 0.85); }
+    .font-hand { font-family: 'Caveat Brush', cursive; letter-spacing: 0.01em; }
+    .font-mono-x { font-family: 'JetBrains Mono', monospace; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { scrollbar-width: none; }
+    .safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+    .flip-scene { perspective: 1200px; }
+    .flip-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .squiggle {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='8' viewBox='0 0 40 8'%3E%3Cpath d='M0 4 Q5 0 10 4 T20 4 T30 4 T40 4' fill='none' stroke='%23FF5A5F' stroke-width='2.5'/%3E%3C/svg%3E");
+        background-repeat: repeat-x; background-position: 0 100%; background-size: 40px 8px; padding-bottom: 6px;
+    }
+}
+
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+.animate-spin-slow { animation: spin-slow 14s linear infinite; }
+@keyframes floaty { 0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); } 50% { transform: translateY(-8px) rotate(calc(var(--r, 0deg) + 3deg)); } }
+.animate-floaty { animation: floaty 4.5s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-spin-slow, .animate-floaty { animation: none !important; }
+    * { scroll-behavior: auto !important; }
+}
+
+[data-debug-wrapper="true"] { display: contents !important; }

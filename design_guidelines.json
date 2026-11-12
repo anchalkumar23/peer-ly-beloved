@@ -1,0 +1,152 @@
+{
+  "app_name": "Scribbld ✳ People — Who's your Scribbld person?",
+  "app_type": "mobile_web_app",
+  "archetype": "Pastel & Playful Scrapbook",
+  "target_audience": "Scribbld Mumbai creative agency employees",
+  "design_philosophy": "Tactile digital collage with paper textures, handmade tape overlays, doodle stickers, internet-native agency humor, bold neo-brutalist offset shadows, and smooth motion physics.",
+  "code_extension": ".js",
+
+  "typography": {
+    "google_fonts_url": "https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap",
+    "font_family_heading": "'Caveat Brush', 'Plus Jakarta Sans', cursive, sans-serif",
+    "font_family_body": "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif",
+    "font_family_mono": "'JetBrains Mono', monospace",
+    "hierarchy": {
+      "h1_hero": "text-3xl sm:text-4xl font-extrabold tracking-tight font-heading leading-tight",
+      "h2_section": "text-xl sm:text-2xl font-bold tracking-tight font-heading text-slate-900",
+      "h3_card": "text-lg font-bold text-slate-900",
+      "body_main": "text-base font-medium leading-relaxed text-slate-800",
+      "body_small": "text-sm text-slate-600 leading-snug",
+      "caption_mono": "font-mono text-xs uppercase tracking-widest text-slate-500",
+      "handwritten_accent": "font-heading text-xl text-rose-600 rotate-[-2deg]"
+    }
+  },
+
+  "colors": {
+    "background_craft_paper": "#F9F6F0",
+    "paper_card_bg": "#FFFFFF",
+    "card_dark_bg": "#1E1E24",
+    "text_main": "#1E1E24",
+    "text_muted": "#5C5C66",
+    "border_ink": "#1E1E24",
+    "primary_brand": "#FF5A5F",
+    "primary_hover": "#E0484D",
+    "accent_blue": "#2563EB",
+    "accent_yellow": "#F59E0B",
+    "accent_green": "#10B981",
+    "accent_purple": "#8B5CF6",
+    "accent_pink": "#EC4899",
+    "tape_yellow": "rgba(254, 240, 138, 0.75)",
+    "tape_mint": "rgba(167, 243, 208, 0.75)",
+    "tape_pink": "rgba(251, 207, 232, 0.75)",
+    "shadow_brutal": "4px 4px 0px #1E1E24",
+    "shadow_brutal_lg": "6px 6px 0px #1E1E24",
+    "shadow_brutal_active": "2px 2px 0px #1E1E24"
+  },
+
+  "visual_enhancers": {
+    "paper_grain_texture": "repeating-linear-gradient(45deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 2px, transparent 2px, transparent 4px)",
+    "tape_overlay": "absolute -top-3 left-1/2 -translate-x-1/2 w-20 h-6 bg-[rgba(254,240,138,0.75)] backdrop-blur-sm transform -rotate-2 border-y border-amber-300/40 z-20 pointer-events-none shadow-sm",
+    "scribbld_asterisk": "✳",
+    "sticker_badge": "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border-2 border-slate-900 shadow-[2px_2px_0px_#1E1E24] bg-amber-300 text-slate-900 transform -rotate-1",
+    "neo_brutalist_card": "bg-white border-2 border-slate-900 rounded-2xl p-5 shadow-[4px_4px_0px_#1E1E24] hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
+  },
+
+  "grids": {
+    "mobile_container": "w-full max-w-md mx-auto min-h-screen bg-[#F9F6F0] flex flex-col justify-between relative overflow-x-hidden border-x border-slate-200/60 shadow-xl",
+    "quiz_options_grid": "grid grid-cols-1 sm:grid-cols-2 gap-3.5 my-4",
+    "archetype_card_grid": "grid grid-cols-1 gap-4",
+    "people_matches_grid": "flex flex-col gap-4 py-2"
+  },
+
+  "layouts": {
+    "header": "sticky top-0 z-40 bg-[#F9F6F0]/90 backdrop-blur-md border-b-2 border-slate-900 px-4 py-3 flex items-center justify-between",
+    "bottom_action_bar": "fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white/95 backdrop-blur-md border-t-2 border-slate-900 p-4 z-40 flex items-center gap-3 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]",
+    "main_content_area": "flex-1 px-4 pt-4 pb-24 overflow-y-auto"
+  },
+
+  "motion": {
+    "page_transition": {
+      "initial": { "opacity": 0, "x": 30, "scale": 0.98 },
+      "animate": { "opacity": 1, "x": 0, "scale": 1 },
+      "exit": { "opacity": 0, "x": -30, "scale": 0.98 },
+      "transition": { "type": "spring", "stiffness": 300, "damping": 30 }
+    },
+    "card_select_tap": { "scale": 0.97, "rotate": -1 },
+    "sticker_wiggle": {
+      "animate": { "rotate": [-2, 2, -2] },
+      "transition": { "repeat": "Infinity", "duration": 3, "ease": "easeInOut" }
+    },
+    "card_flip": {
+      "transition": { "duration": 0.8, "ease": "easeInOut" }
+    }
+  },
+
+  "accessibility": {
+    "contrast": "APCA & WCAG AA minimum 4.5:1 ratio for text over craft paper and card backgrounds.",
+    "touch_targets": "Minimum 48px height on all interactive buttons, card choices, and navigation tabs.",
+    "reduced_motion": "Check window.matchMedia('(prefers-reduced-motion: reduce)') to disable intense card flips and floating stickers.",
+    "test_ids": "Mandatory data-testid on every interactive button, input, quiz option card, consent toggle, and match action."
+  },
+
+  "archetypes": [
+    {
+      "id": "soft_landing",
+      "name": "Soft-Landing Specialist",
+      "tagline": "The cozy guide & office vibe preserver",
+      "badge_color": "bg-teal-300 text-teal-950",
+      "traits": ["Tea-fetcher supreme", "Onboarding buddy", "Preserves good vibes"],
+      "description": "You make everyone feel at home in 5 seconds flat. You remember tea orders, notice when someone is overwhelmed, and have a emergency stash of chocolate."
+    },
+    {
+      "id": "side_quest",
+      "name": "Side-Quest Starter",
+      "tagline": "Spontaneous hackathon & chai run instigator",
+      "badge_color": "bg-amber-300 text-amber-950",
+      "traits": ["Chai-run instigator", "Random fun ideas", "Chaos coordinator"],
+      "description": "You turned a 5-minute coffee break into a 45-minute philosophical debate on Mumbai street food. Work is fun when you're around!"
+    },
+    {
+      "id": "rabbit_hole",
+      "name": "Rabbit-Hole Researcher",
+      "tagline": "3 AM deep diver & niche agency lore expert",
+      "badge_color": "bg-indigo-300 text-indigo-950",
+      "traits": ["Deep diver", "Niche lore master", "Detail detective"],
+      "description": "Give you a minor question and you'll return with a 12-slide deep dive, complete with historical background and 4 Reddit references."
+    },
+    {
+      "id": "group_chat",
+      "name": "Group-Chat Glue",
+      "tagline": "Meme archivist & reaction-GIF connoisseur",
+      "badge_color": "bg-rose-300 text-rose-950",
+      "traits": ["Meme archivist", "GIF connoisseur", "Event catalyst"],
+      "description": "The slack channel would be silent without you. You have the exact right GIF for every situational horror and organize Friday drinks."
+    }
+  ],
+
+  "image_urls": {
+    "agency_workspace_1": "https://images.unsplash.com/photo-1681949103006-70066fb25dfe?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAxODF8MHwxfHNlYXJjaHwxfHxjcmVhdGl2ZSUyMG9mZmljZSUyMHRlYW18ZW58MHx8fHwxNzk0NDY4MTE3fDA&ixlib=rb-4.1.0&q=85",
+    "agency_workspace_2": "https://images.unsplash.com/photo-1553028826-f4804a6dba3b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAxODF8MHwxfHNlYXJjaHwzfHxjcmVhdGl2ZSUyMG9mZmljZSUyMHRlYW18ZW58MHx8fHwxNzk0NDY4MTE3fDA&ixlib=rb-4.1.0&q=85",
+    "avatar_female_1": "https://images.unsplash.com/photo-1623717217554-72ca676de535?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MTN8MHwxfHNlYXJjaHwyfHxwZW9wbGUlMjBwb3J0cmFpdCUyMHNtaWxlfGVufDB8fHx8MTc5NDQ2ODExN3ww&ixlib=rb-4.1.0&q=85",
+    "avatar_female_2": "https://images.unsplash.com/photo-1611695434369-a8f5d76ceb7b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MTN8MHwxfHNlYXJjaHwxfHxwZW9wbGUlMjBwb3J0cmFpdCUyMHNtaWxlfGVufDB8fHx8MTc5NDQ2ODExN3ww&ixlib=rb-4.1.0&q=85",
+    "avatar_female_3": "https://images.unsplash.com/photo-1669689290695-7f0efe5d4c8e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MTN8MHwxfHNlYXJjaHwzfHxwZW9wbGUlMjBwb3J0cmFpdCUyMHNtaWxlfGVufDB8fHx8MTc5NDQ2ODExN3ww&ixlib=rb-4.1.0&q=85",
+    "avatar_male_1": "https://images.unsplash.com/photo-1592234789031-94bf65f630ed?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MTN8MHwxfHNlYXJjaHw0fHxwZW9wbGUlMjBwb3J0cmFpdCUyMHNtaWxlfGVufDB8fHx8MTc5NDQ2ODExN3ww&ixlib=rb-4.1.0&q=85"
+  },
+
+  "component_path": "/app/frontend/src/components/",
+
+  "instructions_to_main_agent": [
+    "Build a mobile-first 360px React application with full support for scaling on desktop screens.",
+    "Implement the 28 quiz questions broken into 5 sections with progress tracking, back/skip buttons, and autosave.",
+    "Build Microsoft SSO simulation -> Welcome -> Profile builder with image cropping -> 28 quiz screens -> Welcome note with word counter -> Consent screen -> Card flip reveal -> Profile card -> People to meet -> Say hi bottom sheet -> Inbox -> Settings -> Admin dashboard.",
+    "Utilize Framer Motion for smooth card slides, sticker animations, and card-flip personality reveal with canvas-confetti.",
+    "Ensure every interactive element has a unique `data-testid` attribute."
+  ],
+
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Never use dark gradients; use craft paper textures and neo-brutalist offset shadows.",
+    "Ensure readable APCA color contrast and explicit text colors on all hover states.",
+    "Avoid generic centered layouts; use sticker overlays and rotated paper cards.",
+    "All interactive elements MUST have data-testid attributes."
+  ]
+}
