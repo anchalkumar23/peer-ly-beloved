@@ -42,10 +42,10 @@ const MatchCard = ({ m, i, onHi, onHide, onNotNow }) => {
             {m.connection.outgoing ? STATUS_LABEL[m.connection.status] : "They said hi! Check Inbox"}
           </Sticker>
         ) : (
-          <Btn size="sm" className="flex-1" onClick={() => onHi(m)} data-testid={`match-sayhi-${m.id}`}><Hand className="h-4 w-4" /> Say hi</Btn>
+          <Btn size="sm" className="flex-1 whitespace-nowrap" onClick={() => onHi(m)} data-testid={`match-sayhi-${m.id}`}><Hand className="h-4 w-4" /> Say hi</Btn>
         )}
-        <Btn size="sm" variant="paper" onClick={() => onNotNow(m)} data-testid={`match-notnow-${m.id}`} aria-label="Not now"><Clock className="h-4 w-4" /><span className="hidden min-[380px]:inline">Not now</span></Btn>
-        <Btn size="sm" variant="paper" onClick={() => onHide(m)} data-testid={`match-hide-${m.id}`} aria-label="Hide this person"><EyeOff className="h-4 w-4" /><span className="hidden min-[380px]:inline">Hide</span></Btn>
+        <Btn size="sm" variant="paper" className="!px-3" onClick={() => onNotNow(m)} data-testid={`match-notnow-${m.id}`} aria-label="Not now"><Clock className="h-4 w-4" /><span className="hidden min-[400px]:inline">Not now</span></Btn>
+        <Btn size="sm" variant="paper" className="!px-3" onClick={() => onHide(m)} data-testid={`match-hide-${m.id}`} aria-label="Hide this person"><EyeOff className="h-4 w-4" /><span className="hidden min-[400px]:inline">Hide</span></Btn>
       </div>
     </motion.article>
   );

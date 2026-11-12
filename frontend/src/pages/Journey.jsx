@@ -32,6 +32,13 @@ export default function Journey() {
   const [busy, setBusy] = useState(false);
   const timers = useRef({});
   const editing = !!user.profile?.completed_at;
+  const firstDraft = useRef(true);
+
+  useEffect(() => {
+    if (firstDraft.current) { firstDraft.current = false; return undefined; }
+    const t = setTimeout(() => api.put("/profile", draft).catch(() => {}), 800);
+    return () => clearTimeout(t);
+  }, [draft]);
 
   useEffect(() => {
     api.get("/questions").then(({ data }) => {
@@ -124,6 +131,7 @@ export default function Journey() {
           <Logo small />
           <div className="flex items-center gap-2">
             <span className="font-mono-x text-xs text-[#5C5C66]" data-testid="journey-step-count">{step + 1}/{steps.length}</span>
+            {user.admin_role && !editing && <button type="button" data-testid="journey-admin-link" onClick={() => nav("/admin")} className="h-9 px-3 rounded-full brutal-sm bg-violet-200 text-xs font-bold">Admin</button>}
             {editing && <button type="button" aria-label="Save and exit" data-testid="journey-exit-btn" onClick={() => nav("/me")} className="h-9 w-9 grid place-items-center rounded-full brutal-sm bg-white"><X className="h-4 w-4" /></button>}
           </div>
         </div>

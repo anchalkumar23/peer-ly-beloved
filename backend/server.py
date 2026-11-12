@@ -121,6 +121,8 @@ api = APIRouter(prefix="/api")
 async def upsert_user_and_session(response: Response, *, tid, oid, email, name):
     email = email.lower()
     existing = await db.users.find_one({"email": email}, {"_id": 0})
+    if existing and existing.get("status") == "departed":
+        raise HTTPException(403, "This account is no longer active")
     if existing:
         await db.users.update_one({"email": email}, {"$set": {"tid": tid, "oid": oid, "ms_name": name, "last_seen": iso(now())}})
         uid = existing["id"]
@@ -165,7 +167,10 @@ async def ms_callback(request: Request):
     if not email.endswith("@" + DOMAIN):
         return RedirectResponse(f"{PUBLIC_BASE_URL}/?auth_error=domain")
     resp = RedirectResponse(f"{PUBLIC_BASE_URL}/")
-    await upsert_user_and_session(resp, tid=tid, oid=oid, email=email, name=claims.get("name") or email.split("@")[0])
+    try:
+        await upsert_user_and_session(resp, tid=tid, oid=oid, email=email, name=claims.get("name") or email.split("@")[0])
+    except HTTPException:
+        return RedirectResponse(f"{PUBLIC_BASE_URL}/?auth_error=departed")
     return resp
 
 
@@ -425,7 +430,7 @@ async def set_visibility(body: VisibilityIn, user=Depends(current_user)):
 async def wipe_profile(uid):
     await db.profiles.delete_one({"user_id": uid})
     await db.match_events.delete_many({"$or": [{"user_id": uid}, {"other_id": uid}]})
-    await db.connections.delete_many({"$or": [{"sender_id": uid}, {"recipient_id": uid}], "status": "sent"})
+    await db.connections.delete_many({"$or": [{"sender_id": uid}, {"recipient_id": uid}]})
     await db.users.update_one({"id": uid}, {"$set": {"name_confirmed": False}})
 
 
@@ -677,6 +682,10 @@ async def admin_status(uid: str, body: StatusIn, user=Depends(require_admin("hr"
     target = await db.users.find_one({"id": uid}, {"_id": 0})
     if not target:
         raise HTTPException(404, "Not found")
+    if uid == user["id"]:
+        raise HTTPException(400, "You can't change your own status")
+    if ADMIN_ROLES.get(target["email"]) == "full" and user["admin_role"] != "full":
+        raise HTTPException(403, "Only a full admin can change a full admin's status")
     await db.users.update_one({"id": uid}, {"$set": {"status": body.status, "status_changed_at": iso(now())}})
     if body.status == "departed":
         await db.sessions.delete_many({"user_id": uid})

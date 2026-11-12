@@ -189,7 +189,7 @@ const Audit = () => {
   );
 };
 
-const TABS = [["overview", "Numbers"], ["people", "People"], ["questions", "Questions"], ["audit", "Audit log"]];
+const TABS = [["overview", "Numbers"], ["people", "People"], ["questions", "Questions"], ["audit", "Audit"]];
 
 export default function Admin() {
   const { user } = useAuth();
@@ -199,10 +199,10 @@ export default function Admin() {
     <AppShell right={<Sticker color="purple" rotate={2} data-testid="admin-role-badge">{ROLE_LABEL[role]}</Sticker>}>
       <Eyebrow>admin area</Eyebrow>
       <h1 className="mt-2 font-hand text-5xl leading-none">Behind the scenes</h1>
-      <div className="mt-5 flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 pb-2" role="tablist">
+      <div className="mt-5 grid grid-cols-4 gap-1.5" role="tablist">
         {TABS.map(([k, l]) => (
           <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} data-testid={`admin-tab-${k}`}
-            className={`shrink-0 min-h-[44px] px-4 rounded-full brutal-sm text-sm font-bold ${tab === k ? "bg-[#1E1E24] text-white" : "bg-white"}`}>{l}</button>
+            className={`min-h-[44px] px-1 rounded-full brutal-sm text-xs sm:text-sm font-bold ${tab === k ? "bg-[#1E1E24] text-white" : "bg-white"}`}>{l}</button>
         ))}
       </div>
       <motion.div key={tab} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mt-5">

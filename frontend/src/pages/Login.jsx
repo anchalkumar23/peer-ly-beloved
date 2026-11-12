@@ -12,6 +12,7 @@ const ERRORS = {
   domain: "That account isn't a @wearescribbld.com one. Try your work Microsoft account.",
   tenant: "That account belongs to a different organisation.",
   failed: "Microsoft sign-in didn't finish. Give it another go.",
+  departed: "This account is no longer active. Talk to HR if that's a mistake.",
 };
 
 const MsIcon = () => (

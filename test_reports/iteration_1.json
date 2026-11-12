@@ -1,0 +1,50 @@
+{
+  "summary": "First full test run of Scribbld People. Backend: 14/14 pytest tests pass, covering domain gate, dev-login, profile, autosave answers, photo upload, the 50-word note cap, completion/archetype, matches (hide, not-now, refresh, non-discoverable excluded), connections (send, 409 on a second send, seen, accept, email shown only after accept), admin permissions (full/hr/viewer/non-admin), question toggle, pause, mark departed and settings. Frontend at 390px: the whole new-user flow works end to end (dev sign-in, name confirm, welcome, name, photo upload+crop+save, team chip, paste blocked, 28 questions with auto-advance/multi-select/write-in/lunch follow-up/skip, note counter capped at 50, consent off by default, shuffle then flip reveal with traits, My card). Reload resumes at the same step with answers kept. People Hide, Not now, Refresh and Say hi (opener, review, send, sent state) work. Riya receives the request and accepts it; she sees the sender's email and the sender's tracker shows Sent→Seen→Accepted. Settings toggles and profile delete work. Admin works: stats, search, view dialog, pause/unpause, depart, questions toggle, audit log. No horizontal overflow on any page tested. Main problems: admins must finish the quiz before they can open Admin, and a departed user's sign-in fails silently.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/auth/dev-login (and /api/auth/callback)", "issue": "Departed users still get a session cookie (200). The block only happens later, when /api/auth/me returns 403. Login should refuse departed users with 403."},
+      {"endpoint": "DELETE /api/profile and DELETE /api/admin/people/{uid}/profile", "issue": "wipe_profile deletes only connections with status 'sent'. Seen, accepted and declined connections stay, so the other person's inbox still lists the deleted user, and still shows their email for accepted ones (seen for TEST_A in Riya's inbox). The uploaded photo is also never removed from storage."},
+      {"endpoint": "PUT /api/admin/people/{uid}/status", "issue": "No guard against an admin marking themselves, or a full admin, as departed. An HR admin can lock out kajol@."},
+      {"endpoint": "POST /api/connections", "issue": "Email to recipient fails with 422 'Undeliverable recipient' for fake @wearescribbld.com addresses. The failure is handled gracefully and the request is still created, as expected in preview."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "App.js Gate", "issue": "The /admin route only exists after name_confirmed AND profile.completed_at. Admins (kajol@, hr@, batul@) who have not done the quiz get the name-confirm screen or the journey and cannot reach Admin at all. HR and viewer admins should not have to make a personality profile.", "selector": "[data-testid='tab-admin']", "priority": "HIGH"},
+      {"component": "Login / AuthContext", "issue": "A departed user signs in, /auth/me returns 403, refresh() swallows the error, and the user stays on the login page with no message. The 'This account is no longer active' message should be shown.", "selector": "[data-testid='dev-login-submit']", "priority": "MEDIUM"},
+      {"component": "QuestionStep toggle (single-select)", "issue": "Going Back to an answered single-select question and tapping the selected option clears the answer instead of moving on (toggle: sel.includes(id) ? [] : [id]). The answer is lost silently.", "selector": "[data-testid^='option-']", "priority": "MEDIUM"},
+      {"component": "Journey FactsStep / NameStep / TeamStep / NoteStep", "issue": "Text fields are only saved on Next (go(step+1, patch)). Typed text is lost on reload before pressing Next. Quiz answers do autosave.", "selector": "[data-testid='profile-funfact-input']", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "People (390px)", "issues": ["The 'Say hi' button on match cards wraps onto two lines ('Say / hi') next to Not now and Hide; it looks cramped."]},
+      {"screen": "Admin (390px)", "issues": ["The admin tab row (Numbers/People/Questions/Audit log) is cut off on the right ('Audit lo…') with no visible scroll hint."]},
+      {"screen": "Question Q2 (area)", "issues": ["The write-in input for 'Elsewhere' appears below the fold with no auto-scroll, so users may not notice it."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_scribbld_api.py", "/app/backend/tests/ui_helper_complete.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "Let admins reach /admin without completing a profile: render the admin route before the name/profile gates when user.admin_role is set.",
+    "Reject departed users at dev-login and the MS callback with 403, and show the 403 message on the login page.",
+    "Single-select: tapping the already-selected option should move forward (or do nothing), not clear the answer.",
+    "wipe_profile: also delete or hide non-'sent' connections (or mask the person), and delete the stored photo.",
+    "Prevent self-departure and HR departing full admins.",
+    "Autosave profile text fields with a debounce (optional).",
+    "Small layout fixes: Say hi button width, admin tab overflow hint, scroll the write-in field into view."
+  ],
+  "critical_code_review_comments": [
+    "server.py is 780 lines; split it into routers (auth, profile, matches, connections, admin).",
+    "get_matches writes match_events in a per-match loop (N awaits); use bulk_write.",
+    "matchable_user_ids and the admin endpoints load every user/profile with to_list(5000). Fine for this company size; filter in Mongo later.",
+    "_photo_cache is unbounded per entry (up to 5MB x 200 = 1GB) and is cleared all at once; consider an LRU with a byte limit."
+  ],
+  "updated_files": ["/app/backend/tests/test_scribbld_api.py", "/app/backend/tests/ui_helper_complete.py"],
+  "success_rate": {"backend": "100% (14/14)", "frontend": "~90% (all requested flows pass; admin is gated behind quiz completion)"},
+  "test_credentials": "Used /app/memory/test_credentials.md (dev-login, no passwords).",
+  "seed_data_creation": "Created TEST users test_<hex>@wearescribbld.com and test_ui_285dcc@wearescribbld.com. Their profiles were self-deleted, but the user rows remain because there is no user-delete API, so they inflate admin 'Signed up' and 'Not started' counts. Temporarily completed kajol@ and hr@ profiles (discoverable=false) to reach Admin, then wiped them (name_confirmed reset to false). Deleted 2 TEST connections in riya's inbox by id. The camera question was toggled off and back on (active again).",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Run: cd /app/backend && REACT_APP_BACKEND_URL=... pytest tests/test_scribbld_api.py. Admin UI needs a completed admin profile (python tests/ui_helper_complete.py kajol@wearescribbld.com; wipe it afterwards with the 'wipe' arg) until the Gate fix lands. Single-select auto-advance plus the exit animation takes about 1.5s, so wait at least that long between questions. After an admin marks someone departed, the depart button testid changes.",
+  "rca of the issue": "Admin unreachable: App.js Gate returns <NameConfirm/> when !name_confirmed and Journey-only routes when !completed_at, before the /admin route is registered. Departed silent failure: AuthContext.refresh catches every error and sets user=null, and dev-login gives no domain/status check beyond the email domain."
+}

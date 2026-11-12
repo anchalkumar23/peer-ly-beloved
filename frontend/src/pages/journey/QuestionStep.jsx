@@ -41,7 +41,7 @@ export const QuestionStep = ({ q, answer, onChange, index, total }) => {
   const writeIn = q.options.find((o) => o.write_in && sel.includes(o.id));
 
   const toggle = (id) => {
-    const next = q.multi ? (sel.includes(id) ? sel.filter((s) => s !== id) : [...sel, id]) : sel.includes(id) ? [] : [id];
+    const next = q.multi ? (sel.includes(id) ? sel.filter((s) => s !== id) : [...sel, id]) : [id];
     onChange({ ...answer, selected: next, skipped: false }, !q.multi && next.length === 1 && !q.options.find((o) => o.id === id)?.write_in);
   };
 
@@ -60,7 +60,8 @@ export const QuestionStep = ({ q, answer, onChange, index, total }) => {
       </div>
       <AnimatePresence>
         {writeIn && (
-          <motion.label key="wi" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="block mt-5 overflow-hidden">
+          <motion.label key="wi" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="block mt-5 overflow-hidden scroll-mb-32"
+            onAnimationComplete={(def) => def?.opacity === 1 && document.querySelector(`[data-testid="writein-${q.id}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" })}>
             <span className="text-sm font-bold">Write it in</span>
             <input data-testid={`writein-${q.id}`} value={answer?.other || ""} maxLength={80} onChange={(e) => onChange({ ...answer, other: e.target.value })}
               placeholder={q.id === "area" ? "City and area, e.g. Pune, Baner" : "Tell us"}

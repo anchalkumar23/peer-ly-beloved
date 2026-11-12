@@ -1,5 +1,5 @@
 import "@/App.css";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { MotionConfig } from "framer-motion";
 import { Toaster } from "sonner";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
@@ -16,8 +16,10 @@ import Admin from "@/pages/Admin";
 
 const Gate = () => {
   const { user } = useAuth();
+  const location = useLocation();
   if (user === undefined) return <Splash />;
   if (!user) return <Routes><Route path="*" element={<Login />} /></Routes>;
+  if (user.admin_role && location.pathname === "/admin") return <Admin />;
   if (!user.name_confirmed) return <NameConfirm />;
   const done = !!user.profile?.completed_at;
   if (!done) return <Routes><Route path="/journey" element={<Journey />} /><Route path="*" element={<Navigate to="/journey" replace />} /></Routes>;

@@ -27,6 +27,9 @@ export default function NameConfirm() {
     <Frame>
       <main className="px-5 pt-6 pb-32">
         <Logo small />
+        {user?.admin_role && (
+          <a href="/admin" data-testid="nameconfirm-admin-link" className="absolute top-6 right-5 h-9 px-3 rounded-full brutal-sm bg-violet-200 text-xs font-bold grid place-items-center">Admin area →</a>
+        )}
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="mt-12 relative">
           <Doodle kind="swirl" className="absolute -top-8 right-4" color="#2563EB" size={48} />
           <Eyebrow>signed in as {user?.email}</Eyebrow>
