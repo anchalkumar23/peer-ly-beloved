@@ -11,7 +11,13 @@ const SECTION_META = {
 };
 export { SECTION_META };
 
-const Option = ({ o, selected, multi, onToggle, compact, i }) => (
+const Tick = ({ selected, multi, className = "" }) => (
+  <span className={`shrink-0 h-6 w-6 grid place-items-center border-2 border-[#1E1E24] ${multi ? "!rounded-[5px]" : "rounded-full"} ${selected ? "bg-[#FF5A5F]" : "bg-white"} ${className}`}>
+    <AnimatePresence>{selected && <motion.span initial={{ scale: 0, rotate: -45 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0 }}><Check className="h-4 w-4 text-white" strokeWidth={3} /></motion.span>}</AnimatePresence>
+  </span>
+);
+
+const Option = ({ o, selected, multi, onToggle, compact, tile, i }) => (
   <motion.button
     type="button"
     role={multi ? "checkbox" : "radio"}
@@ -22,22 +28,37 @@ const Option = ({ o, selected, multi, onToggle, compact, i }) => (
     animate={{ opacity: 1, y: 0, scale: selected ? 1.02 : 1, rotate: selected ? (i % 2 ? 1 : -1) : 0 }}
     whileTap={{ scale: 0.95, rotate: -1 }}
     transition={{ delay: Math.min(i * 0.035, 0.4), type: "spring", stiffness: 420, damping: 22 }}
-    className={`relative text-left w-full rounded-2xl border-2 border-[#1E1E24] flex items-center gap-3 transition-colors
-      ${compact ? "min-h-[56px] px-3 py-2" : "min-h-[64px] px-4 py-3"}
+    className={`relative text-left w-full rounded-2xl border-2 border-[#1E1E24] transition-colors overflow-hidden
+      ${tile ? "flex flex-col" : `flex items-center gap-3 ${compact ? "min-h-[56px] px-3 py-2" : "min-h-[64px] px-4 py-3"}`}
       ${selected ? "bg-amber-200 shadow-[2px_2px_0_#1E1E24]" : "bg-white shadow-[4px_4px_0_#1E1E24] hover:bg-amber-50"}`}
   >
-    <span className={`${compact ? "text-xl" : "text-2xl"} shrink-0`} aria-hidden>{o.emoji}</span>
-    <span className={`flex-1 font-semibold leading-snug ${compact ? "text-sm" : "text-[15px]"}`}>{o.label}</span>
-    <span className={`shrink-0 h-6 w-6 grid place-items-center border-2 border-[#1E1E24] ${multi ? "rounded-md" : "rounded-full"} ${selected ? "bg-[#FF5A5F]" : "bg-white"}`}>
-      <AnimatePresence>{selected && <motion.span initial={{ scale: 0, rotate: -45 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0 }}><Check className="h-4 w-4 text-white" strokeWidth={3} /></motion.span>}</AnimatePresence>
-    </span>
+    {tile ? (
+      <>
+        <span className="block w-full aspect-[4/3] border-b-2 border-[#1E1E24] bg-amber-100 overflow-hidden grid place-items-center">
+          {o.image
+            ? <img src={o.image} alt={o.label} loading="lazy" className={`w-full h-full object-cover transition-transform duration-300 ${selected ? "scale-105" : ""}`} />
+            : <span className="text-5xl" aria-hidden>{o.emoji}</span>}
+        </span>
+        <span className="flex items-center gap-2 px-2.5 py-2 flex-1">
+          <span className="flex-1 text-sm font-semibold leading-snug">{o.label}</span>
+          <Tick selected={selected} multi={multi} />
+        </span>
+      </>
+    ) : (
+      <>
+        <span className={`${compact ? "text-xl" : "text-2xl"} shrink-0`} aria-hidden>{o.emoji}</span>
+        <span className={`flex-1 font-semibold leading-snug ${compact ? "text-sm" : "text-[15px]"}`}>{o.label}</span>
+        <Tick selected={selected} multi={multi} />
+      </>
+    )}
   </motion.button>
 );
 
 export const QuestionStep = ({ q, answer, onChange, index, total }) => {
   const sel = answer?.selected || [];
   const meta = SECTION_META[q.section];
-  const compact = q.options.length > 8 || q.options.every((o) => o.label.length <= 16);
+  const tile = q.options.some((o) => o.image);
+  const compact = tile || q.options.length > 8 || q.options.every((o) => o.label.length <= 16);
   const writeIn = q.options.find((o) => o.write_in && sel.includes(o.id));
 
   const toggle = (id) => {
@@ -55,7 +76,7 @@ export const QuestionStep = ({ q, answer, onChange, index, total }) => {
       <p className="mt-1 mb-5 text-sm text-[#5C5C66]">{q.multi ? "Pick as many as you like." : "Pick one."}</p>
       <div role={q.multi ? "group" : "radiogroup"} aria-label={q.prompt} className={`grid gap-3 ${compact ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2"}`}>
         {q.options.map((o, i) => (
-          <Option key={o.id} o={o} i={i} multi={q.multi} compact={compact} selected={sel.includes(o.id)} onToggle={() => toggle(o.id)} />
+          <Option key={o.id} o={o} i={i} multi={q.multi} compact={compact} tile={tile} selected={sel.includes(o.id)} onToggle={() => toggle(o.id)} />
         ))}
       </div>
       <AnimatePresence>

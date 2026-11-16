@@ -12,6 +12,18 @@ import { WelcomeStep, NameStep, PhotoStep, TeamStep, FactsStep } from "./journey
 import { QuestionStep } from "./journey/QuestionStep";
 import { NoteStep, ConsentStep } from "./journey/EndSteps";
 
+const putRetry = async (url, body) => {
+  for (let i = 0; i < 4; i += 1) {
+    try {
+      return await api.put(url, body);
+    } catch (e) {
+      if (e.response && e.response.status < 500) throw e;
+      await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+    }
+  }
+  throw new Error("offline");
+};
+
 const variants = {
   enter: (d) => ({ x: d > 0 ? 60 : -60, opacity: 0, rotate: d > 0 ? 2 : -2 }),
   center: { x: 0, opacity: 1, rotate: 0 },
@@ -31,6 +43,9 @@ export default function Journey() {
   const [dir, setDir] = useState(1);
   const [busy, setBusy] = useState(false);
   const timers = useRef({});
+  const stepRef = useRef(null);
+  const [cropping, setCropping] = useState(false);
+  stepRef.current = step;
   const editing = !!user.profile?.completed_at;
   const firstDraft = useRef(true);
 
@@ -41,11 +56,16 @@ export default function Journey() {
   }, [draft]);
 
   useEffect(() => {
-    api.get("/questions").then(({ data }) => {
+    Promise.all([api.get("/questions"), refresh()]).then(([{ data }, me]) => {
+      const p = me?.profile || {};
+      setProfile(p);
+      setAnswers(p.answers || {});
+      setDiscoverable(!!p.discoverable);
+      setDraft({ display_name: p.display_name || me?.display_name, team: p.team || "", fun_fact: p.fun_fact || "", obsession: p.obsession || "", welcome_note: p.welcome_note || "" });
+      firstDraft.current = true;
       setQuestions(data);
       const fromQuery = parseInt(params.get("step"), 10);
-      const saved = user.profile?.step || 0;
-      setStep(Math.min(Number.isFinite(fromQuery) ? fromQuery : saved, data.length + 6));
+      setStep(Math.min(Number.isFinite(fromQuery) ? fromQuery : p.step || 0, data.length + 6));
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -58,20 +78,22 @@ export default function Journey() {
 
   const saveAnswer = (qid, ans, delay = 0) => {
     clearTimeout(timers.current[qid]);
-    timers.current[qid] = setTimeout(() => api.put(`/profile/answers/${qid}`, ans).catch(() => toast.error("Couldn't autosave, check your connection")), delay);
+    timers.current[qid] = setTimeout(() => putRetry(`/profile/answers/${qid}`, ans)
+      .catch(() => toast.error("That answer didn't save yet. Check your connection; we'll retry when you tap Next.", { id: "autosave" })), delay);
   };
 
   const go = async (to, patch = {}) => {
     setDir(to > step ? 1 : -1);
     setStep(to);
     window.scrollTo({ top: 0, behavior: "smooth" });
-    api.put("/profile", { ...patch, step: to }).then(({ data }) => setProfile(data)).catch(() => {});
+    putRetry("/profile", { ...patch, step: to }).then(({ data }) => setProfile(data)).catch(() => {});
   };
 
   const onAnswer = (ans, autoAdvance) => {
     setAnswers((a) => ({ ...a, [q.id]: ans }));
     saveAnswer(q.id, ans, autoAdvance ? 0 : 450);
-    if (autoAdvance) setTimeout(() => go(step + 1), 380);
+    const at = step;
+    if (autoAdvance) setTimeout(() => stepRef.current === at && go(at + 1), 380);
   };
 
   const finish = async () => {
@@ -99,7 +121,7 @@ export default function Journey() {
     if (key === "consent") return finish();
     if (q) {
       clearTimeout(timers.current[q.id]);
-      if (answers[q.id]) api.put(`/profile/answers/${q.id}`, answers[q.id]).catch(() => {});
+      if (answers[q.id]) putRetry(`/profile/answers/${q.id}`, answers[q.id]).catch(() => toast.error("That answer didn't save. Check your connection and try again.", { id: "autosave" }));
     }
     const patch = { name: { display_name: draft.display_name }, team: { team: draft.team }, facts: { fun_fact: draft.fun_fact, obsession: draft.obsession }, note: { welcome_note: draft.welcome_note } }[key] || {};
     go(step + 1, patch);
@@ -115,7 +137,7 @@ export default function Journey() {
   const body = {
     welcome: <WelcomeStep name={draft.display_name} />,
     name: <NameStep draft={draft} set={set} />,
-    photo: <PhotoStep profile={profile} onProfile={setProfile} name={draft.display_name} />,
+    photo: <PhotoStep profile={profile} onProfile={setProfile} name={draft.display_name} onCropping={setCropping} />,
     team: <TeamStep draft={draft} set={set} />,
     facts: <FactsStep draft={draft} set={set} />,
     note: <NoteStep draft={draft} set={set} profile={profile} />,
@@ -132,7 +154,7 @@ export default function Journey() {
           <div className="flex items-center gap-2">
             <span className="font-mono-x text-xs text-[#5C5C66]" data-testid="journey-step-count">{step + 1}/{steps.length}</span>
             {user.admin_role && !editing && <button type="button" data-testid="journey-admin-link" onClick={() => nav("/admin")} className="h-9 px-3 rounded-full brutal-sm bg-violet-200 text-xs font-bold">Admin</button>}
-            {editing && <button type="button" aria-label="Save and exit" data-testid="journey-exit-btn" onClick={() => nav("/me")} className="h-9 w-9 grid place-items-center rounded-full brutal-sm bg-white"><X className="h-4 w-4" /></button>}
+            {editing && <button type="button" aria-label="Save and exit" data-testid="journey-exit-btn" onClick={async () => { await refresh(); nav("/me"); }} className="h-9 w-9 grid place-items-center rounded-full brutal-sm bg-white"><X className="h-4 w-4" /></button>}
           </div>
         </div>
         <ProgressDoodle value={(step + 1) / steps.length} label={`Step ${step + 1} of ${steps.length}`} />
@@ -146,6 +168,9 @@ export default function Journey() {
         </AnimatePresence>
       </main>
       <BottomBar>
+        {key === "photo" && cropping ? (
+          <p className="flex-1 text-center text-sm font-bold py-3" data-testid="journey-crop-hint">Tap “Use this” above to save your photo ☝️</p>
+        ) : (<>
         {step > 0 && (
           <Btn variant="paper" className="!px-0 w-[52px] shrink-0" aria-label="Back" onClick={() => go(step - 1)} data-testid="journey-back-btn"><ArrowLeft className="h-5 w-5" /></Btn>
         )}
@@ -155,6 +180,7 @@ export default function Journey() {
           </Btn>
         )}
         <Btn className="flex-1" disabled={!canNext} loading={busy} onClick={next} data-testid="journey-next-btn">{nextLabel}</Btn>
+        </>)}
       </BottomBar>
     </Frame>
   );

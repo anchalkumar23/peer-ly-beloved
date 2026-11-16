@@ -74,7 +74,8 @@ async def ensure_indexes():
 
 async def seed_questions():
     for q in build_questions():
-        await db.questions.update_one({"id": q["id"]}, {"$setOnInsert": q}, upsert=True)
+        options = q.pop("options")
+        await db.questions.update_one({"id": q["id"]}, {"$set": {"options": options}, "$setOnInsert": q}, upsert=True)
 
 
 def now():
@@ -223,7 +224,7 @@ async def get_questions(active_only=True):
 def public_question(q):
     return {"id": q["id"], "order": q["order"], "section": q["section"], "prompt": q["prompt"], "multi": q["multi"],
             "followup": q.get("followup"),
-            "options": [{"id": o["id"], "label": o["label"], "emoji": o["emoji"], "write_in": o["write_in"]} for o in q["options"]]}
+            "options": [{"id": o["id"], "label": o["label"], "emoji": o["emoji"], "write_in": o["write_in"], "image": o.get("image")} for o in q["options"]]}
 
 
 async def get_profile(uid):

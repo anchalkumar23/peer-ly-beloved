@@ -167,6 +167,9 @@ RAW = [
 ]
 
 WRITE_IN_LABELS = {"Elsewhere (write your city and area)", "Something else (write it in)", "Somewhere else (write it in)"}
+OPTION_IMAGES = {"meme_0": "/memes/jethalal.jpg", "meme_1": "/memes/baburao.jpg", "meme_2": "/memes/pawri.jpg",
+                 "meme_4": "/memes/moye.jpg", "meme_5": "/memes/distracted.jpg", "meme_6": "/memes/yelling.jpg",
+                 "meme_7": "/memes/drake.jpg"}
 FOLLOWUPS = {"food": {"prompt": "Got a go-to lunch spot near office? (optional)", "placeholder": "e.g. that tiny dosa place", "max": 60}}
 
 
@@ -177,7 +180,7 @@ def build_questions():
         for i, (label, emoji, tags, share) in enumerate(opts):
             options.append({
                 "id": f"{qid}_{i}", "label": label, "emoji": emoji, "tags": list(tags),
-                "share": share, "write_in": label in WRITE_IN_LABELS,
+                "share": share, "write_in": label in WRITE_IN_LABELS, "image": OPTION_IMAGES.get(f"{qid}_{i}"),
             })
         out.append({
             "id": qid, "order": order, "section": section, "prompt": prompt, "multi": multi,

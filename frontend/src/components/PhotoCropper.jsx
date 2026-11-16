@@ -26,7 +26,7 @@ export const PhotoCropper = ({ src, onCancel, onDone, busy }) => {
 
   return (
     <div className="space-y-4" data-testid="photo-cropper">
-      <div className="relative w-full aspect-square rounded-2xl overflow-hidden brutal bg-[#1E1E24]">
+      <div className="relative w-full max-w-[280px] mx-auto aspect-square rounded-2xl overflow-hidden brutal bg-[#1E1E24]">
         <Cropper image={src} crop={crop} zoom={zoom} rotation={rotation} aspect={1} cropShape="round" showGrid={false}
           onCropChange={setCrop} onZoomChange={setZoom} onCropComplete={onComplete} />
       </div>

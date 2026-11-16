@@ -96,11 +96,12 @@ export const FactsStep = ({ draft, set }) => (
   </>
 );
 
-export const PhotoStep = ({ profile, onProfile, name }) => {
+export const PhotoStep = ({ profile, onProfile, name, onCropping }) => {
   const fileRef = useRef();
   const [src, setSrc] = useState(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => () => src && URL.revokeObjectURL(src), [src]);
+  useEffect(() => { onCropping?.(!!src); return () => onCropping?.(false); }, [src, onCropping]);
 
   const pick = (e) => {
     const f = e.target.files?.[0];
