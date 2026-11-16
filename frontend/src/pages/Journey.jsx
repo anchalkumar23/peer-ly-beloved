@@ -85,6 +85,7 @@ export default function Journey() {
   const go = async (to, patch = {}) => {
     setDir(to > step ? 1 : -1);
     setStep(to);
+    window.history.replaceState(null, "", `/journey?step=${to}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
     putRetry("/profile", { ...patch, step: to }).then(({ data }) => setProfile(data)).catch(() => {});
   };
@@ -154,7 +155,11 @@ export default function Journey() {
           <div className="flex items-center gap-2">
             <span className="font-mono-x text-xs text-[#5C5C66]" data-testid="journey-step-count">{step + 1}/{steps.length}</span>
             {user.admin_role && !editing && <button type="button" data-testid="journey-admin-link" onClick={() => nav("/admin")} className="h-9 px-3 rounded-full brutal-sm bg-violet-200 text-xs font-bold">Admin</button>}
-            {editing && <button type="button" aria-label="Save and exit" data-testid="journey-exit-btn" onClick={async () => { await refresh(); nav("/me"); }} className="h-9 w-9 grid place-items-center rounded-full brutal-sm bg-white"><X className="h-4 w-4" /></button>}
+            {editing && <button type="button" aria-label="Save and exit" data-testid="journey-exit-btn" onClick={async () => {
+              await Promise.all([putRetry("/profile", draft), ...Object.keys(timers.current).map((qid) => { clearTimeout(timers.current[qid]); return answers[qid] && putRetry(`/profile/answers/${qid}`, answers[qid]); })]).catch(() => {});
+              await refresh();
+              nav("/me");
+            }} className="h-9 w-9 grid place-items-center rounded-full brutal-sm bg-white"><X className="h-4 w-4" /></button>}
           </div>
         </div>
         <ProgressDoodle value={(step + 1) / steps.length} label={`Step ${step + 1} of ${steps.length}`} />

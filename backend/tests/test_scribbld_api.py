@@ -238,8 +238,9 @@ class TestAdmin:
         assert kajol.put(f"{API}/admin/people/{tme['id']}/status", json={"status": "departed"}).status_code == 200
         try:
             assert t.get(f"{API}/auth/me").status_code in (401, 403)
-            t2 = login(email)  # dev-login still issues cookie
-            assert t2.get(f"{API}/auth/me").status_code == 403
+            # dev-login now refuses departed users up front
+            r2 = requests.post(f"{API}/auth/dev-login", json={"email": email})
+            assert r2.status_code == 403 and "no longer active" in r2.text
             for _ in range(3):
                 assert tme["id"] not in [m["id"] for m in viewer.get(f"{API}/matches?refresh=true").json()["matches"]]
             audit = kajol.get(f"{API}/admin/audit").json()

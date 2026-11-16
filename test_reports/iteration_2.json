@@ -1,0 +1,28 @@
+{
+  "summary": "Retested the four reported bugs at 390x844. All pass. (1) Multi-select ticks are square (border-radius 5px, role=checkbox) and single-select ticks are round (9999px, role=radio). (2) Q17 meme question at step 21 shows a 2-column grid (169px x2) with 8 tiles: 7 real photos, all loaded (naturalWidth 215-480), plus a 💅 emoji tile for 'So beautiful, so elegant'. Selecting one sets aria-checked=true, auto-advances exactly one step and saves on the server. (3) Persistence: answered weather/area/food/dessert, went Back 4 steps and every selection was intact. Reload on /journey resumes at the same step with server answers intact. A quick multi tap then Next then Back keeps the new tick. Re-tapping a selected single option keeps it and advances. No autosave toasts appeared. (4) Double-tapping two different single options moves forward only one step, and the last tap is the one saved. (5) Edit from a completed profile (/journey?step=1, X exit): a changed multi answer and a changed single answer (exit 100ms after the tap) both show correctly on re-edit and on the server. (6) Photo: picking a file shows the cropper, the Next/Skip buttons are replaced by the 'Tap “Use this” above…' hint, and 'Use this' uploads the photo. The preview image loads (640px) with Replace/Remove and 'Saved', and Next returns. After finishing, My card's profile-card-photo contains a loaded <img>. Note, consent (default off) and the reveal flip all work. Backend regression: 14/14 pass after one test was updated.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Journey mount (step from query)", "issue": "The ?step= query always overrides the saved step and the URL never changes as the user moves. If someone enters edit via /journey?step=1, moves ahead and reloads, they jump back to step 1. Answers are kept; only the position is lost.", "selector": "[data-testid='journey-step-count']", "priority": "LOW"},
+      {"component": "Journey exit (X) in edit mode", "issue": "The exit button does not flush pending debounced multi-select saves (450ms timer) before refresh() and nav('/me'). My card can briefly show stale data, and an answer is lost if the tab closes within 450ms. It worked in testing because the timer still fires after unmount.", "selector": "[data-testid='journey-exit-btn']", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_scribbld_api.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "Optional: on journey-exit-btn, flush pending timers.current saves (await the putRetry calls) before refresh/nav.",
+    "Optional: keep ?step in sync with the current step (setSearchParams replace), or drop it after the first read, so reload during edit resumes correctly."
+  ],
+  "critical_code_review_comments": [
+    "putRetry retries 5xx up to 4 times with backoff. An older answer PUT that is retrying can land after a newer PUT for the same question and overwrite it (no ordering or version check). Consider aborting the earlier request per qid, or sending a client timestamp/sequence that the server checks.",
+    "Journey.jsx nextLabel has a redundant ternary for photo ('Next →' : 'Next →')."
+  ],
+  "updated_files": ["/app/backend/tests/test_scribbld_api.py (test_depart_and_pause now expects dev-login to return 403 for departed users, matching the new fix)"],
+  "success_rate": {"backend": "100% (14/14)", "frontend": "100% of requested flows"},
+  "test_credentials": "Dev-login per /app/memory/test_credentials.md (no passwords).",
+  "seed_data_creation": "Created users qa_it2a/b/c/d@wearescribbld.com. Profiles b, c and d were self-deleted with DELETE /api/profile (d had been completed, visible and given a photo). The user rows remain because there is no user-delete API. Pytest created and cleaned up its own test_<hex> users.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Fresh dev-login users land on the name confirm screen; click name-confirm-submit before opening /journey. Step indexes: 0 welcome, 1 name, 2 photo, 3 team, 4 facts, 5-32 questions (21 = meme), 33 note, 34 consent. Wait about 1.3-1.6s after a single-select auto-advance. Option testids are option-<qid>_<i>; tick shape is the span.shrink-0.h-6 inside an option."
+}
