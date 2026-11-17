@@ -36,7 +36,7 @@ const Option = ({ o, selected, multi, onToggle, compact, tile, i }) => (
       <>
         <span className="block w-full aspect-[4/3] border-b-2 border-[#1E1E24] bg-amber-100 overflow-hidden grid place-items-center">
           {o.image
-            ? <img src={o.image} alt={o.label} loading="lazy" className={`w-full h-full object-cover transition-transform duration-300 ${selected ? "scale-105" : ""}`} />
+            ? <img src={o.image} alt={o.label} loading="lazy" className={`w-full h-full object-contain transition-transform duration-300 ${selected ? "scale-105" : ""}`} />
             : <span className="text-5xl" aria-hidden>{o.emoji}</span>}
         </span>
         <span className="flex items-center gap-2 px-2.5 py-2 flex-1">
